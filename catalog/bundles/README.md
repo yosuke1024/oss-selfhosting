@@ -26,3 +26,8 @@ reasoning for the selection.
   are curation, not orchestration.
 - Bundles are built from products that are already listed. Do not create a
   bundle in order to justify listing its members.
+
+The schema is [`../../schemas/bundle.schema.json`](../../schemas/bundle.schema.json).
+The validator refuses a bundle whose member has no record or is not currently
+listed, a member listed twice, an overlap naming a non-member, and a
+`combined_dependent_services` list that omits a service a member requires.

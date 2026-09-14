@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yosuke1024/oss-selfhosting/schemas/product-record.schema.json",
+  "title": "Catalog product record",
+  "description": "One record per product, stored at catalog/projects/<product_slug>.json. Structure only: the conditional rules that decide what may be listed live in the validator, which ships with this schema. Passing this schema is not a listing decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "data_class", "product", "review", "discovery", "deployment", "states"],
+  "properties": {
+    "schema_version": { "$ref": "common.schema.json#/$defs/schema_version" },
+    "data_class": { "$ref": "common.schema.json#/$defs/data_class" },
+
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name", "summary", "upstream"],
+      "properties": {
+        "slug": { "$ref": "common.schema.json#/$defs/slug" },
+        "name": { "$ref": "common.schema.json#/$defs/text" },
+        "summary": {
+          "$ref": "common.schema.json#/$defs/long_text",
+          "description": "One or two factual sentences about what the product does. Not an assessment, not review prose."
+        },
+        "upstream": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repo_url", "license", "self_hosting_permitted"],
+          "properties": {
+            "repo_url": { "$ref": "common.schema.json#/$defs/https_url" },
+            "homepage_url": { "$ref": "common.schema.json#/$defs/https_url" },
+            "license": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "The upstream license as an SPDX identifier where one applies, or 'unknown' when it could not be established. 'unknown' blocks a listing."
+            },
+            "license_url": { "$ref": "common.schema.json#/$defs/https_url" },
+            "self_hosting_permitted": {
+              "type": "boolean",
+              "description": "Whether the upstream license permits self-hosting. false blocks a listing."
+            }
+          }
+        }
+      }
+    },
+
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_slug", "review_url"],
+      "description": "A reference to the published JuryPress review. Scores, Verdicts and review text are deliberately absent: they stay in the review and are joined at display time. Whether the review is still published is checked by the consumer at build time, not asserted here.",
+      "properties": {
+        "review_slug": { "$ref": "common.schema.json#/$defs/review_slug" },
+        "review_url": { "$ref": "common.schema.json#/$defs/https_url" }
+      }
+    },
+
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categories", "use_cases"],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "$ref": "common.schema.json#/$defs/slug" }
+        },
+        "use_cases": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "common.schema.json#/$defs/text" },
+          "description": "The jobs a reader is trying to do. The first entry is the one the generated index files this product under."
+        },
+        "search_terms": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "common.schema.json#/$defs/text" }
+        }
+      }
+    },
+
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "template_type", "dependent_services"],
+      "properties": {
+        "provider": {
+          "$ref": "common.schema.json#/$defs/slug",
+          "description": "The hosting provider the recommended route targets, e.g. railway. The reader pays this provider directly; this repository hosts nothing."
+        },
+        "template_type": { "$ref": "common.schema.json#/$defs/template_type" },
+        "route_url": {
+          "$ref": "common.schema.json#/$defs/https_url",
+          "description": "The deployment route a reader follows. Required unless the listing state is retired, where it must be absent."
+        },
+        "route_provenance": {
+          "$ref": "common.schema.json#/$defs/long_text",
+          "description": "How the route was established as official or trusted, and why alternatives were not used."
+        },
+        "maintained_path": {
+          "$ref": "common.schema.json#/$defs/repo_path",
+          "description": "Directory under deployments/ holding configuration maintained by this repository. Required for template_type maintained_here, and refused otherwise."
+        },
+        "guide_path": {
+          "$ref": "common.schema.json#/$defs/repo_path",
+          "description": "The setup guide a reader follows, under deployments/<product_slug>/."
+        },
+        "dependent_services": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "required", "supplied_by"],
+            "properties": {
+              "name": { "$ref": "common.schema.json#/$defs/text" },
+              "required": { "type": "boolean" },
+              "supplied_by": {
+                "type": "string",
+                "enum": ["reader", "provider", "bundled"],
+                "description": "reader: the reader brings or pays for it. provider: the hosting provider offers it as part of the route. bundled: it ships with the product's own deployment."
+              },
+              "note": { "$ref": "common.schema.json#/$defs/text" }
+            }
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "common.schema.json#/$defs/long_text" },
+          "description": "Operating constraints a reader takes on: resource floors, manual steps, things that must be supplied. A constraint is not a gap in verification; untested areas belong in the verification block."
+        }
+      }
+    },
+
+    "states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work_state", "listing_state"],
+      "properties": {
+        "work_state": { "$ref": "common.schema.json#/$defs/work_state" },
+        "listing_state": { "$ref": "common.schema.json#/$defs/listing_state" },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approved", "approved_by", "approved_at", "approved_config_digest"],
+          "description": "A person's decision to publish this record. Present only once work_state is verified.",
+          "properties": {
+            "approved": { "type": "boolean", "const": true },
+            "approved_by": { "$ref": "common.schema.json#/$defs/text" },
+            "approved_at": { "$ref": "common.schema.json#/$defs/date" },
+            "approved_config_digest": {
+              "$ref": "common.schema.json#/$defs/sha256",
+              "description": "The deployment configuration digest that was approved. The validator recomputes it; a mismatch means the configuration changed after approval and re-verification plus re-approval are required."
+            },
+            "approval_reference": { "$ref": "common.schema.json#/$defs/https_url" }
+          }
+        },
+        "retirement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["retired_at", "reason"],
+          "properties": {
+            "retired_at": { "$ref": "common.schema.json#/$defs/date" },
+            "reason": { "$ref": "common.schema.json#/$defs/long_text" }
+          }
+        }
+      }
+    },
+
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verifier", "verified_at", "target", "checks", "config_digest"],
+      "description": "What a person actually ran, on what version, and what came of it. Present only once work_state is verified; absent otherwise, so that nothing in preparation can carry a verification claim.",
+      "properties": {
+        "verifier": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "The person who performed the deployment. An automated job is never a verifier."
+        },
+        "verified_at": { "$ref": "common.schema.json#/$defs/date" },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "The exact thing that was deployed. At least one of upstream_commit or image_digest is required; a tag alone does not pin anything.",
+          "properties": {
+            "upstream_commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "upstream_version": { "$ref": "common.schema.json#/$defs/text" },
+            "image_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "template_revision": {
+              "$ref": "common.schema.json#/$defs/text",
+              "description": "The template version or revision deployed, where the route is a provider template."
+            }
+          }
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "result"],
+            "properties": {
+              "check_id": { "$ref": "common.schema.json#/$defs/slug" },
+              "result": { "$ref": "common.schema.json#/$defs/check_result" },
+              "reason": {
+                "$ref": "common.schema.json#/$defs/long_text",
+                "description": "Required for not_applicable, and expected for failed. Never a restatement of the result."
+              },
+              "observed": {
+                "$ref": "common.schema.json#/$defs/long_text",
+                "description": "What the verifier actually saw. Optional, and never a substitute for the result."
+              }
+            }
+          }
+        },
+        "not_tested": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "common.schema.json#/$defs/long_text" },
+          "description": "Areas outside the defined checks that were not exercised. A non-empty list means the listing is at best experimental."
+        },
+        "config_digest": {
+          "$ref": "common.schema.json#/$defs/sha256",
+          "description": "Digest of the deployment configuration this verification covers. Recomputed by the validator; a mismatch means the record describes a different deployment from the one that was verified."
+        }
+      }
+    },
+
+    "notes_paths": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/repo_path" },
+      "description": "Optional long-form notes under notes/<product_slug>/. Nothing depends on a note, and a note never carries a check result."
+    }
+  }
+}

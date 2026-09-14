@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: JuryPress reviews
+    url: https://pixapps.ai/
+    about: Scores, Verdicts and review text live there, not here. This repository records self-hosting verifications only.
+  - name: Report a licensing or attribution problem
+    url: https://github.com/yosuke1024/oss-selfhosting/blob/main/LICENSING.md
+    about: If something here reproduces material it should not, or implies an affiliation that does not exist, open a blank issue and say so. Corrections take priority over listings.

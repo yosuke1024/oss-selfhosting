@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "fixture",
+  "product": {
+    "slug": "example-tested",
+    "name": "Example Tested Product",
+    "summary": "A fictional product used to exercise the validator. It exists only in this fixture and is never listed.",
+    "upstream": {
+      "repo_url": "https://github.com/example-org/example-tested",
+      "homepage_url": "https://example.com/",
+      "license": "AGPL-3.0-only",
+      "license_url": "https://github.com/example-org/example-tested/blob/main/LICENSE",
+      "self_hosting_permitted": true
+    }
+  },
+  "review": {
+    "review_slug": "example-org-example-tested-a1b2c3",
+    "review_url": "https://pixapps.ai/reviews/example-org-example-tested-a1b2c3/"
+  },
+  "discovery": {
+    "categories": [
+      "analytics"
+    ],
+    "use_cases": [
+      "Web analytics for a small site"
+    ],
+    "search_terms": [
+      "analytics",
+      "privacy-friendly analytics"
+    ]
+  },
+  "deployment": {
+    "provider": "railway",
+    "template_type": "official",
+    "route_url": "https://railway.com/template/example-tested",
+    "route_provenance": "Published by the upstream project and linked from its own README at the verified commit.",
+    "guide_path": "deployments/example-tested/README.md",
+    "dependent_services": [
+      {
+        "name": "PostgreSQL",
+        "required": true,
+        "supplied_by": "provider"
+      },
+      {
+        "name": "SMTP provider",
+        "required": false,
+        "supplied_by": "reader",
+        "note": "Only needed for e-mail reports."
+      }
+    ],
+    "constraints": [
+      "The template provisions a database that is billed to the reader's own account."
+    ]
+  },
+  "states": {
+    "work_state": "verified",
+    "listing_state": "tested",
+    "approval": {
+      "approved": true,
+      "approved_by": "yosuke1024",
+      "approved_at": "2026-09-12",
+      "approved_config_digest": "b74587250045945ab8f77ba547de81157a6339f0921e93c73a8da22286567e10",
+      "approval_reference": "https://github.com/yosuke1024/oss-selfhosting/pull/2"
+    }
+  },
+  "verification": {
+    "verifier": "yosuke1024",
+    "verified_at": "2026-09-11",
+    "target": {
+      "upstream_commit": "1111111111111111111111111111111111111111",
+      "upstream_version": "v2.4.0",
+      "template_revision": "2026-09-01"
+    },
+    "checks": [
+      {
+        "check_id": "deploy-completes",
+        "result": "passed",
+        "observed": "Reached a running state on the first attempt."
+      },
+      {
+        "check_id": "initial-setup-completes",
+        "result": "passed"
+      },
+      {
+        "check_id": "primary-flow-works",
+        "result": "passed",
+        "observed": "A test event sent from a sample page appeared on the dashboard."
+      },
+      {
+        "check_id": "access-and-auth-understood",
+        "result": "passed",
+        "observed": "The dashboard requires sign-in; the collector endpoint is public by design."
+      },
+      {
+        "check_id": "persistence-survives-restart",
+        "result": "passed",
+        "observed": "Events recorded before a redeploy were still present afterwards."
+      },
+      {
+        "check_id": "backup-and-restore",
+        "result": "passed"
+      },
+      {
+        "check_id": "upgrade-path",
+        "result": "not_applicable",
+        "reason": "The verified version is the newest release; there is no later version to move to."
+      },
+      {
+        "check_id": "cost-observed",
+        "result": "passed",
+        "observed": "Metered usage read after 14 days of continuous running."
+      },
+      {
+        "check_id": "automated-smoke-check",
+        "result": "not_applicable",
+        "reason": "This repository maintains no smoke check for this product."
+      }
+    ],
+    "not_tested": [],
+    "config_digest": "b74587250045945ab8f77ba547de81157a6339f0921e93c73a8da22286567e10"
+  }
+}

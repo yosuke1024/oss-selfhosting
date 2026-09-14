@@ -1,0 +1,66 @@
+# Validation for the catalog contract.
+#
+# This workflow is the required status check on `main` (see
+# docs/repository-settings.md). What it must be able to do, and what shapes it:
+#
+#   - It runs standalone. No credentials, no secrets, no network calls to a
+#     hosting provider, and no access to JuryPress's private editorial data. A
+#     pull request from a fork gets the same result as one from a branch.
+#   - It installs nothing. The validator has no dependencies, so there is no
+#     lockfile to trust and no registry to be unavailable.
+#   - It runs exactly what a contributor runs locally. If CI says a record is
+#     invalid, `node scripts/catalog.mjs validate` says the same thing on a
+#     laptop with a clone and Node.js.
+name: Validate catalog
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Read-only. Nothing here writes to the repository, opens a pull request or
+# publishes anything.
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      # The contract's own tests: representative valid and invalid documents,
+      # the state transitions, and the refusals that keep an unverified claim
+      # off a public surface.
+      - name: Test the contract
+        run: node --test 'tests/*.test.mjs'
+
+      # Every record, bundle and check definition in this repository.
+      - name: Validate the catalog
+        run: node scripts/catalog.mjs validate
+
+      # The front page is generated from the records; a hand-edited index that
+      # disagrees with them is a published claim nothing backs.
+      - name: Check the generated index
+        run: node scripts/catalog.mjs index --check
+
+      # A consumer pins this commit and verifies these hashes. A schema edit
+      # that forgets the manifest would hand them a hash that no longer matches.
+      - name: Check the pinned distribution manifest
+        run: node scripts/catalog.mjs contract --check

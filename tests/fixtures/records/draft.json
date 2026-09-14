@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "fixture",
+  "product": {
+    "slug": "example-draft",
+    "name": "Example Draft Product",
+    "summary": "A fictional candidate prepared by the daily job and waiting for a person to deploy it.",
+    "upstream": {
+      "repo_url": "https://github.com/example-org/example-draft",
+      "license": "unknown",
+      "self_hosting_permitted": true
+    }
+  },
+  "review": {
+    "review_slug": "example-org-example-draft-0f1e2d",
+    "review_url": "https://pixapps.ai/reviews/example-org-example-draft-0f1e2d/"
+  },
+  "discovery": {
+    "categories": ["productivity"],
+    "use_cases": ["Bookmark management"]
+  },
+  "deployment": {
+    "provider": "railway",
+    "template_type": "community",
+    "route_url": "https://railway.com/template/example-draft",
+    "route_provenance": "A community template was found; its provenance has not been checked yet.",
+    "dependent_services": [{ "name": "PostgreSQL", "required": true, "supplied_by": "reader" }]
+  },
+  "states": {
+    "work_state": "awaiting_human_verification",
+    "listing_state": "unlisted"
+  }
+}

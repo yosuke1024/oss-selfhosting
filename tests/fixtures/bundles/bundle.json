@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "fixture",
+  "bundle_slug": "example-small-site",
+  "name": "Example small-site stack",
+  "use_case": "Running a small public site with its own analytics and shared notes.",
+  "selection_rationale": "Both members are listed, both run on the same provider, and neither duplicates the other's job.",
+  "members": [
+    { "product_slug": "example-tested", "role": "Analytics for the public site." },
+    { "product_slug": "example-experimental", "role": "Shared notes for the people running it." }
+  ],
+  "combined_dependent_services": ["PostgreSQL"],
+  "overlaps": [
+    {
+      "product_slugs": ["example-tested", "example-experimental"],
+      "note": "Both want their own PostgreSQL database; the provider bills each separately."
+    }
+  ],
+  "integration_verified": false,
+  "integration_note": "Each member was verified on its own. Nothing was checked about the two running together."
+}

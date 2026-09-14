@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "production",
+  "checks": [
+    {
+      "check_id": "deploy-completes",
+      "title": "The deployment completes",
+      "required": true,
+      "what_to_do": "Follow the recommended route end to end on your own hosting account, from the template or configuration named on the record, and wait for the service to reach a running state.",
+      "passing_criteria": "The service starts and stays up long enough to be used. A deployment that needs an undocumented manual fix has not passed until that fix is written into the guide.",
+      "automatable": true
+    },
+    {
+      "check_id": "initial-setup-completes",
+      "title": "Initial configuration completes",
+      "required": true,
+      "what_to_do": "Complete first-run setup: create the first account or credential, apply any database migration, and set the environment values the product needs to be usable.",
+      "passing_criteria": "The product reaches a configured, usable state without editing anything the guide does not mention.",
+      "automatable": false
+    },
+    {
+      "check_id": "primary-flow-works",
+      "title": "The product's main flow works",
+      "required": true,
+      "what_to_do": "Exercise the one thing the product exists to do, end to end, with real input. The record's deployment guide names the flow for this product.",
+      "passing_criteria": "The flow produces the expected result on the deployed instance, not only in the product's own documentation.",
+      "automatable": false
+    },
+    {
+      "check_id": "access-and-auth-understood",
+      "title": "Public exposure and authentication are understood",
+      "required": true,
+      "what_to_do": "Establish what the deployment exposes to the internet, what authentication protects it, and what an unauthenticated visitor can reach. Try the product's URL while signed out.",
+      "passing_criteria": "The exposure is known and intended, and anything reachable without authentication is something the operator meant to be public. 'I did not check' is not a pass.",
+      "automatable": false
+    },
+    {
+      "check_id": "persistence-survives-restart",
+      "title": "Required persistence survives a restart",
+      "required": true,
+      "what_to_do": "Create data the product is supposed to keep, restart or redeploy the service, and look for it again.",
+      "passing_criteria": "Data that should persist is still there after the restart. For a product that genuinely stores nothing, answer not_applicable and say why.",
+      "automatable": true
+    },
+    {
+      "check_id": "backup-and-restore",
+      "title": "A backup can be taken and restored",
+      "required": false,
+      "what_to_do": "Take a backup by the route the product or provider documents, then restore it into a working instance.",
+      "passing_criteria": "The restored instance carries the data the backup was taken from.",
+      "automatable": false
+    },
+    {
+      "check_id": "upgrade-path",
+      "title": "An upgrade to a newer version works",
+      "required": false,
+      "what_to_do": "Move the deployment from the verified version to a newer released version, applying whatever migration the upstream project documents.",
+      "passing_criteria": "The upgrade completes and the main flow still works afterwards. Note what broke even when it ends well.",
+      "automatable": false
+    },
+    {
+      "check_id": "cost-observed",
+      "title": "Running cost has been observed",
+      "required": false,
+      "what_to_do": "Leave the deployment running long enough for the provider to bill or meter it, and read the actual usage.",
+      "passing_criteria": "A real observed cost or usage figure exists, with the period it covers. An estimate from a pricing page is not an observation.",
+      "automatable": false
+    },
+    {
+      "check_id": "automated-smoke-check",
+      "title": "An automated smoke check passes",
+      "required": false,
+      "what_to_do": "Run whatever automated check this repository maintains for the product against the deployed instance.",
+      "passing_criteria": "The check passes. It is evidence about a deployment and never a substitute for a person's verification of the checks above.",
+      "automatable": true
+    }
+  ]
+}

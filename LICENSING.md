@@ -8,22 +8,29 @@ would be misleading on its own.
 
 ## 1. Code — Apache License 2.0
 
-`scripts/`, `schemas/`, `.github/`, and any Dockerfile, platform configuration
-or build file maintained by this repository (including those under
-`deployments/`) are licensed under the Apache License 2.0. The full text is in
+`scripts/`, `schemas/`, `tests/`, `.github/`, `package.json`,
+`checks/checks.json`, and any Dockerfile, platform configuration or build file
+maintained by this repository (including those under `deployments/`) are
+licensed under the Apache License 2.0. The full text is in
 [`LICENSE`](LICENSE); the attribution notice is in [`NOTICE`](NOTICE).
 
 SPDX identifier: `Apache-2.0`.
 
 This covers the catalog contract and its validator specifically, so that other
 projects can consume the same schema and the same validation rather than
-reimplementing it.
+reimplementing it. `checks/checks.json` is named here rather than with the rest
+of `checks/` for the same reason: it is machine-readable, it ships inside the
+pinned distribution a consumer runs, and the boundary should not depend on
+which directory a file happens to sit in. The prose around it —
+`checks/README.md`, which explains what the checks mean — stays under CC BY 4.0
+with the rest of the written material.
 
 ## 2. Catalog and verification records — CC BY 4.0
 
-`catalog/`, `deployments/` (the prose guides), `notes/` and `checks/` — the
-product records, use-case bundles, deployment guides, verification results and
-deployment notes written for this repository — are licensed under the
+`catalog/`, `deployments/` (the prose guides), `notes/` and `checks/` other
+than `checks.json` — the product records, use-case bundles, deployment guides,
+verification results and deployment notes written for this repository — are
+licensed under the
 [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
 
 SPDX identifier: `CC-BY-4.0`.

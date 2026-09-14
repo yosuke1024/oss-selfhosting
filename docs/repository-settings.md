@@ -87,9 +87,10 @@ the full gate, not a detail — it belongs with the daily-job work.
   - required approvals: **0**
   - require conversation resolution before merging — on
 - **Require status checks to pass** — on, with **require branches to be up to
-  date before merging**. Add the validation check as a required check once it
-  exists; a ruleset with an empty required-check list enforces nothing about
-  content.
+  date before merging**. The required check is **`Validate catalog`**, the job
+  in `.github/workflows/ci.yml`; a ruleset with an empty required-check list
+  enforces nothing about content. The check name is the job's `name:`, so
+  renaming the job means updating the ruleset.
 - **Bypass list** — empty.
 
 This already stops an accidental direct push to `main`, stops history
@@ -141,6 +142,7 @@ Stage 1:
 - [ ] A direct push to `main` is rejected, including for the owner.
 - [ ] A pull request is required, and merges while the bypass list is empty.
 - [ ] The ruleset bypass list is empty.
+- [ ] `Validate catalog` is listed as a required status check, and a pull request with a failing validation cannot merge.
 
 Stage 2 (only after the automated job has its own Write-role identity):
 

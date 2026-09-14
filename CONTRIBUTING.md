@@ -61,8 +61,17 @@ product record, never in a note.
 1. Branch from `main` and keep the change small — one product, or one concern.
 2. Say in the description what you actually ran, on what version, and what you
    did not test.
-3. Validation runs on the pull request; fix anything it flags.
-4. The repository owner reviews and approves. Approval is a person's decision
+3. Run the checks locally before pushing — they are the same ones CI runs:
+
+   ```bash
+   node scripts/catalog.mjs validate       # records, bundles, check definitions
+   node scripts/catalog.mjs index --check  # the README index matches the records
+   node --test 'tests/*.test.mjs'          # the contract's own tests
+   ```
+
+   Node.js 22 or newer, no install step, no credentials, no network.
+4. Validation runs on the pull request; fix anything it flags.
+5. The repository owner reviews and approves. Approval is a person's decision
    and is required for every listing change — see
    [docs/governance.md](docs/governance.md).
 

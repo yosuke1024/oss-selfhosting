@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yosuke1024/oss-selfhosting/schemas/common.schema.json",
+  "title": "Shared definitions for the OSS Self-Hosting catalog contract",
+  "description": "Primitive types reused by the product record, bundle and check definition schemas. This file defines no top-level type; it is referenced only.",
+  "$defs": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Contract version this document is written against. The validator refuses a version it does not support; see schemas/VERSIONING.md."
+    },
+    "data_class": {
+      "type": "string",
+      "enum": ["production", "fixture"],
+      "description": "production: a real catalog document. fixture: test data, which may never live under catalog/."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 2,
+      "maxLength": 64,
+      "description": "Lowercase, hyphen-separated identifier. Stable for the life of a listing and never reused for a different subject."
+    },
+    "review_slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{6}(?:-r[0-9a-f]{7})?$",
+      "description": "The JuryPress review slug, e.g. talivia-group-talivia-acfdc1. Optionally carries a revision suffix. This repository stores the slug as a reference only; it never copies the review."
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$",
+      "description": "Calendar date, YYYY-MM-DD, interpreted as UTC. A date in the future is refused."
+    },
+    "https_url": {
+      "type": "string",
+      "pattern": "^https://[^\\s/$.?#][^\\s]*$",
+      "maxLength": 2048,
+      "description": "Absolute https URL. The validator additionally refuses credentials in the URL, IP-literal hosts and non-routable hosts."
+    },
+    "repo_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9][A-Za-z0-9._/-]*$",
+      "maxLength": 256,
+      "description": "Path relative to the repository root. Never absolute, never containing '..'. The validator additionally requires the path to exist and to sit under the directory the field allows."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "long_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "check_result": {
+      "type": "string",
+      "enum": ["passed", "failed", "not_tested", "not_applicable"],
+      "description": "passed: performed and it worked. failed: performed and it did not work. not_tested: not performed. not_applicable: does not apply, and the reason says why."
+    },
+    "work_state": {
+      "type": "string",
+      "enum": ["draft", "ai_prepared", "awaiting_human_verification", "verified"],
+      "description": "How far preparation has got. None of these values is a public claim about the product."
+    },
+    "listing_state": {
+      "type": "string",
+      "enum": ["unlisted", "tested", "experimental", "retired"],
+      "description": "What this repository publicly says about the product. Only tested and experimental appear in the index."
+    },
+    "template_type": {
+      "type": "string",
+      "enum": ["official", "community", "maintained_here"],
+      "description": "Provenance of the deployment route, in the order this repository prefers them."
+    }
+  }
+}

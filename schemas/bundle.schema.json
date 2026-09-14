@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yosuke1024/oss-selfhosting/schemas/bundle.schema.json",
+  "title": "Catalog use-case bundle",
+  "description": "A set of listed products that together cover one job, stored at catalog/bundles/<bundle_slug>.json. A bundle references its members; it never restates a member's record, verification, score or Verdict.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "data_class", "bundle_slug", "name", "use_case", "selection_rationale", "members", "combined_dependent_services", "integration_verified"],
+  "properties": {
+    "schema_version": { "$ref": "common.schema.json#/$defs/schema_version" },
+    "data_class": { "$ref": "common.schema.json#/$defs/data_class" },
+    "bundle_slug": { "$ref": "common.schema.json#/$defs/slug" },
+    "name": { "$ref": "common.schema.json#/$defs/text" },
+    "use_case": { "$ref": "common.schema.json#/$defs/long_text" },
+    "selection_rationale": { "$ref": "common.schema.json#/$defs/long_text" },
+    "members": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["product_slug", "role"],
+        "properties": {
+          "product_slug": { "$ref": "common.schema.json#/$defs/slug" },
+          "role": { "$ref": "common.schema.json#/$defs/text" }
+        }
+      },
+      "description": "Members are deployed individually. A bundle of one is not a bundle."
+    },
+    "combined_dependent_services": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/text" },
+      "description": "Every service required by any member, so a reader sees the whole cost before starting. The validator checks this covers the members' required services."
+    },
+    "overlaps": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["product_slugs", "note"],
+        "properties": {
+          "product_slugs": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": { "$ref": "common.schema.json#/$defs/slug" }
+          },
+          "note": { "$ref": "common.schema.json#/$defs/long_text" }
+        }
+      },
+      "description": "Where members duplicate or conflict with each other, stated plainly."
+    },
+    "integration_verified": {
+      "type": "boolean",
+      "description": "Whether a person verified the members working together. Each member running on its own is a different claim; false is the honest default."
+    },
+    "integration_note": { "$ref": "common.schema.json#/$defs/long_text" }
+  }
+}

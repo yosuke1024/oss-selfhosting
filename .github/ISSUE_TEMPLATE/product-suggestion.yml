@@ -1,0 +1,39 @@
+name: Product suggestion
+description: Suggest an open-source product for the catalog.
+title: "[Suggestion] <product>"
+labels: ["suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A product cannot be listed before it has a published JuryPress review,
+        so a suggestion starts a review conversation rather than a catalog
+        entry. Suggestions come as issues, never as pull requests.
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream repository
+      placeholder: https://github.com/...
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What job does it do
+      description: The use case a reader would come here looking for.
+    validations:
+      required: true
+  - type: textarea
+    id: self-hosting
+    attributes:
+      label: What is known about self-hosting it
+      description: Licence, an official or community deployment template if one exists, and the services it needs.
+    validations:
+      required: false
+  - type: input
+    id: relationship
+    attributes:
+      label: Your relationship to the product
+      description: Employment, sponsorship, referral revenue, maintainer — or "none".
+    validations:
+      required: true
