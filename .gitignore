@@ -1,0 +1,19 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Node (scripts/ tooling)
+node_modules/
+npm-debug.log*
+*.tsbuildinfo
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local scratch — never commit working output into the catalog
+tmp/
+*.local.json
