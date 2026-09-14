@@ -59,15 +59,20 @@ would leave the approval gate open.
 The enforced controls are the repository ruleset and the required status
 checks. Both are repository settings, not files in this branch, and they must
 be configured by the owner — see
-[repository-settings.md](repository-settings.md) for the exact settings this
-project depends on:
+[repository-settings.md](repository-settings.md) for the exact settings and the
+order to apply them in:
 
 - protect `main` against direct pushes, force pushes and deletion,
-- require a pull request with at least one approving review from a code owner,
-- dismiss stale approvals when new commits are pushed,
-- require the validation checks to pass before merge,
-- apply the rules to administrators as well, so an automated job running with
-  owner-level credentials cannot bypass them.
+- require a pull request, with the validation checks passing, for every change,
+- once the automated preparation job has an identity of its own, require an
+  approving review from a code owner and dismiss it when new commits land.
+
+That last item depends on the one before it. GitHub does not let anyone approve
+their own pull request, so on a repository with a single human an approval
+requirement blocks the owner's own work — and it stops the automated job only
+if that job authenticates as something other than the owner. An approval rule
+imposed while the job still runs on owner-level credentials achieves the exact
+inversion of its purpose: the human is blocked and the machine is not.
 
 Until those settings exist, the approval gate is documentation only. The
 project does not claim otherwise.
