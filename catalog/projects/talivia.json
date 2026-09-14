@@ -38,9 +38,10 @@
   },
   "deployment": {
     "provider": "railway",
-    "template_type": "official",
+    "template_type": "maintained_here",
     "route_url": "https://github.com/talivia-group/talivia",
-    "route_provenance": "The route is upstream's own Dockerfile, built by Railway directly from the upstream repository at a pinned commit. It is not a provider template: no official Railway template for Talivia exists, and the upstream repository references Railway nowhere — no deploy button, no railway.json, no mention anywhere in its tree. The one Railway template found (railway.com/deploy/talivia) was evaluated and rejected: it is published by an account unrelated to upstream, and its application service deploys a prebuilt Docker Hub image owned by a third, different account, carrying no overview, no source link and only a mutable 'latest' tag — nothing that can be pinned to an upstream commit, so no verification of it could name the exact thing deployed. Because upstream's Dockerfile is deployable as-is, this repository maintains no configuration for Talivia; only Railway service settings differ from the upstream defaults, and those are in the guide. See notes/talivia/2026-09-14-railway-route-research.md for the full comparison.",
+    "route_provenance": "The route is upstream's own Dockerfile, built by Railway directly from the upstream repository at a pinned commit. It is not a provider template: no official Railway template for Talivia exists, and the upstream repository references Railway nowhere — no deploy button, no railway.json, no mention anywhere in its tree. The one Railway template found (railway.com/deploy/talivia) was evaluated and rejected: it is published by an account unrelated to upstream, and its application service deploys a prebuilt Docker Hub image owned by a third, different account, carrying no overview, no source link and only a mutable 'latest' tag — nothing that can be pinned to an upstream commit, so no verification of it could name the exact thing deployed. With no official and no trustworthy community route, the Railway-specific settings the deployment needs are maintained here instead, as a Railway Infrastructure as Code file at maintained_path: the pinned commit, the Dockerfile build, the health check path, the private-network database reference and the port. Railway has no file-based template format, so this is configuration a reader applies to their own account with their own credentials, not a template this repository publishes. It carries no secret: APP_SECRET is preserved from the reader's own environment and the public domain is created out of band. See notes/talivia/2026-09-14-railway-route-research.md for the route comparison and notes/talivia/2026-09-14-railway-iac-research.md for why this shape.",
+    "maintained_path": "deployments/talivia/.railway",
     "guide_path": "deployments/talivia/README.md",
     "dependent_services": [
       {
@@ -78,5 +79,8 @@
     "work_state": "awaiting_human_verification",
     "listing_state": "unlisted"
   },
-  "notes_paths": ["notes/talivia/2026-09-14-railway-route-research.md"]
+  "notes_paths": [
+    "notes/talivia/2026-09-14-railway-route-research.md",
+    "notes/talivia/2026-09-14-railway-iac-research.md"
+  ]
 }
