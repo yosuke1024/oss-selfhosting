@@ -57,50 +57,86 @@ Route preference is fixed by [`deployments/README.md`](../../deployments/README.
 
 | # | Route | URL | Provenance | Maintained | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| A | Railway template "talivia" | `https://railway.com/deploy/talivia` | **Unverified — publisher not established** | Unknown | **Deferred to P09** |
+| A | Railway template "talivia" | `https://railway.com/deploy/talivia` | **Third party `kmaki`**, deploying a **fourth party's** image `xiaosong233/talivia-railway:latest` | None evident — 0 projects deployed | **Rejected** |
 | B | Railway service built from the upstream `Dockerfile` | `https://github.com/talivia-group/talivia` | **Upstream itself** — the Dockerfile and `docker-compose.yml` are the project's own supported deployment artifacts | Upstream, actively (last commit 2026-09-13) | **Recommended baseline** |
 | C | A template or Dockerfile maintained in this repository | — | Ours | Us | **Rejected** |
 | D | Reuse the Umami Railway template | — | Third party, different product | — | **Not applicable** |
 
-### Route A — exists, provenance not established
+### Route A — exists, publisher identified, rejected
 
-**This is a "could not verify", not a "does not exist".** The distinction the
-issue asks for:
+**Resolved on 2026-09-14** by the repository owner, who opened the template page
+directly (it is egress-blocked from the research environment). The page was read
+from the Railway UI; the findings below are what it shows.
 
-- The page **exists**. Search results consistently resolve
-  `https://railway.com/deploy/talivia` as a live template page, and its
-  indexed description carries Railway-specific detail that a generic listing
-  would not have — port 3000, `/api/heartbeat` as the health check, a private
-  PostgreSQL service, and `PGDATA` pointed at a subdirectory of the volume
-  mount (the standard workaround for Railway volumes, whose mount root is not
-  empty).
-- The **publisher could not be verified from this environment.**
-  `railway.com`, `docs.railway.com` and `talivia.com` are all blocked by this
-  session's network egress proxy, so the template page, the Railway template
-  docs and the vendor documentation could not be read directly.
-- `railwayapp/templates` on GitHub **cannot** settle it either: that repository
-  states its former submission role has moved into the Railway UI, and it no
-  longer holds template definitions.
+| Field on the template page | Value |
+| --- | --- |
+| Template name / category | `talivia` / "Other" |
+| **Publisher** | **`kmaki`** |
+| Created | 2026-08-02 |
+| **Total projects deployed** | **0** |
+| `postgres` service | image `postgres:17.6-alpine`, volume mounted at `/var/lib/postgresql/data` |
+| `app` service | image **`xiaosong233/talivia-railway:latest`** |
 
-What *can* be established, and it is the decisive point:
+Three independent findings, each sufficient on its own to reject the route:
 
-> **The upstream repository contains no reference to Railway at all** — no
-> deploy button in `README.md`, no `railway.json` or `railway.toml`, no mention
-> in any file in the tree (verified by a full-tree case-insensitive search at
-> commit `2d3ec33`).
+1. **The publisher is not upstream.** `kmaki` is unrelated to `taliviagroup`,
+   the single identity behind every commit in the upstream repository (all six
+   commits of its entire history). Combined with the upstream repository's total
+   absence of Railway references, route A **is not official** — the question
+   that was open as O-2 is now answered, and answered negatively.
 
-So route A **cannot be called "official"** today, whatever the template page
-says about itself. Absent an upstream link or a verified publisher identity, it
-is at most a community template of unknown provenance, and the "trusted"
-qualifier is not yet earned.
+2. **The template ships a third party's prebuilt image, not upstream's source.**
+   The `app` service runs `xiaosong233/talivia-railway`, published on Docker Hub
+   by **`xiaosong233` — a third account, distinct from both `kmaki` and
+   `taliviagroup`.** The template publisher does not control the image the
+   template deploys. Two unrelated unidentified parties sit between the reader
+   and the upstream project.
 
-One indexed claim about route A is worth carrying forward regardless of who
-published it: `PGDATA` must point at a **subdirectory** of a Railway volume
-mount, not the mount root. That is a real Railway constraint and it applies to
-any self-run PostgreSQL container on the platform. Route B avoids it entirely
-by using Railway's managed PostgreSQL.
+3. **The image cannot be pinned to an upstream version.** Its Docker Hub page
+   (read 2026-09-14) has **no overview, no description, and no link to any
+   source repository**; 0 stars, 104 pulls; the only tag is **`latest`**
+   (digest `sha256:e21a5cc11…`, 447.3 MB), last updated roughly two months
+   before this note — so it predates essentially all upstream development since
+   early August, while upstream is at `3.1.0` with commits through 2026-09-13.
 
-### Route B — recommended baseline
+Point 3 is disqualifying on its own terms, independently of who published what.
+This catalog's entire premise is that a verification record names **the exact
+version verified**, and that a verification does not roll forward when the
+artifact changes. A mutable `latest` tag on an anonymous image with no
+published provenance offers nothing to pin: there is no way to establish which
+upstream commit the running code corresponds to, no way to detect it changing
+underneath a recorded verification, and no way to review what was added to or
+removed from upstream's build. Verifying it would produce a record that looks
+precise and is not.
+
+`0 total projects` also disposes of the "maintenance status" question the issue
+asks for: the template has no deployment track record at all.
+
+**Corrections to the earlier draft of this note.** Before the page could be
+read, this section relied on search-engine descriptions. Two things it inferred
+were wrong or unverifiable and are withdrawn:
+
+- It described a *private PostgreSQL service* and *`PGDATA` pointed at a
+  subdirectory of the volume mount*. The page shows the volume mounted at
+  `/var/lib/postgresql/data`; whether `PGDATA` is set below that mount root is
+  **not visible** on the page, and was never verified.
+- It inferred the template built from upstream. It does not; it pulls a
+  third-party image.
+
+The underlying Railway constraint is real and still worth knowing — a volume's
+mount root is not empty, so a self-run PostgreSQL container needs `PGDATA` in a
+subdirectory — but it is a general platform fact, not a verified claim about
+this template. Route B avoids it by using Railway's managed PostgreSQL.
+
+**Consequence for route preference.** There is therefore **no official and no
+trusted community Railway route** for Talivia. Under
+[`deployments/README.md`](../../deployments/README.md) that is precisely the
+condition that would open route C — except that route B needs nothing
+maintained here (see below), so route C stays closed anyway. Whether to publish
+a one-click template of our own for reader convenience is a separate question
+for P09/P12, and the epic's rule stands: not for referral or template revenue.
+
+### Route B — the recommendation
 
 Upstream ships a production `Dockerfile` (multi-stage, Next.js standalone
 output, non-root runtime user) and treats it as the supported deployment path.
@@ -110,7 +146,9 @@ pins exactly to the commit the verification record will name, and requires this
 repository to maintain nothing.
 
 It also satisfies the re-verification rule cleanly: the verified artifact is a
-commit SHA, not a third-party template whose contents can change without notice.
+commit SHA, not a third-party template whose contents can change without notice
+— which, after §2's route A findings, is not a hypothetical distinction but the
+exact difference between the two routes.
 
 ### Route C — rejected
 
@@ -438,13 +476,16 @@ these reasons, per the governance gate's item 5):
 | id | Item | Why it is open | How to close |
 | --- | --- | --- | --- |
 | O-1 | Does the standalone server honour `PORT`? | Next.js docs and source unreachable from this environment; `node_modules` not installed | Empirically at P09 via C-2, with `PORT` left unset. Only investigate further if C-2 fails |
-| O-2 | Who publishes the Railway template at `railway.com/deploy/talivia`? | `railway.com` egress-blocked here; upstream links no Railway route (§2) | The owner opens the template page and reads the publisher. If it is `talivia-group`, it becomes the official route and outranks route B |
+| ~~O-2~~ | ~~Who publishes the Railway template?~~ | **CLOSED 2026-09-14** — publisher is `kmaki`, deploying `xiaosong233`'s unpinnable `latest` image (§2) | Closed. Route A rejected; route B confirmed as the recommendation rather than merely the baseline |
 | O-3 | Does Railway's edge set `x-forwarded-host` to the public domain? | Not verifiable without a live deployment | C-6 — the webhook URL shown in the UI is the tell |
 | O-4 | Does `DATABASE_URL` over Railway's private network need an `sslmode` parameter? | Depends on the managed PostgreSQL's TLS posture | C-3 — the boot connection either succeeds or names the reason |
 | O-5 | Upstream has no tagged release | `latest_release_tag: unknown`; the repository is ~6 weeks old | Pin the verification to a **commit SHA**, not a tag. Already assumed throughout |
 
-Note that O-2 is the only one that can change the recommendation, and it can
-only *upgrade* it — route B stays valid either way.
+O-2 was the only open item that could have changed the recommendation. It is
+now closed, and it closed downward: route A is rejected, so route B is the
+recommendation outright rather than a baseline pending verification. None of
+the remaining open items can change the route; O-1, O-3 and O-4 are settled
+empirically during P09's deployment, and O-5 is already accommodated.
 
 ---
 
@@ -456,8 +497,12 @@ record fields, which the schema needs room for:
 - `upstream.commit` as the pinned verified version, with **no tag available**
   (O-5) — the schema must accept a commit SHA as the sole version identifier.
 - `route.type` ∈ {official, community, maintained-here} **plus** a way to record
-  *provenance unverified* — route A is a real state the contract must express,
-  and collapsing it into "community" would overstate what is known.
+  a route that was *evaluated and rejected*, with the reason. Route A is a real
+  state the contract must express: collapsing it into "community" would
+  overstate what is known, and dropping it entirely would invite P11 or a later
+  daily run to rediscover the same template and re-propose it. The reason field
+  matters more than the state — "deploys an unpinnable third-party `latest`
+  image" is the rule that generalises to the next product.
 - `dependencies`: exactly one required service (PostgreSQL ≥ 9.4, upstream
   exercises 17).
 - `constraints`: OSS edition is a subset of the commercial product; no
@@ -473,8 +518,9 @@ conclusion means **no Dockerfile or platform config is maintained here**, so
 `deployments/talivia/` holds a guide only.
 
 **To P09 (human verification)** — run §5 in order; C-4 immediately after the
-first successful boot, before anything else. Close O-2 while in the Railway
-dashboard.
+first successful boot, before anything else. Build from the upstream Dockerfile
+at a pinned commit (route B); do **not** deploy the `talivia` template, for the
+reasons in §2.
 
 ---
 
@@ -492,7 +538,12 @@ All read at the dates given; nothing here is second-hand except where marked.
   `src/tracker/index.js`, `.github/workflows/ci.yml` — read 2026-09-14.
 - JuryPress review record `talivia-group-talivia-acfdc1` and its publication
   state — read 2026-09-14.
-- `https://railway.com/deploy/talivia` — **not read directly** (egress-blocked);
-  existence and indexed description via web search only, 2026-09-14. See O-2.
+- `https://railway.com/deploy/talivia` — template page **read from the Railway
+  UI by the repository owner**, 2026-09-14 (egress-blocked from the research
+  environment). Publisher, creation date, project count and both service
+  definitions taken from that page.
+- `https://hub.docker.com/r/xiaosong233/talivia-railway` — read 2026-09-14:
+  publisher, tag list, digest, size, pull count, and the absence of any
+  overview or source link.
 - `https://github.com/railwayapp/templates` — read 2026-09-14; confirms template
   definitions no longer live in that repository.
