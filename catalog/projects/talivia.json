@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "production",
+  "product": {
+    "slug": "talivia",
+    "name": "Talivia",
+    "summary": "Self-hosted web analytics that joins site traffic to payment data: visits and sessions, session replay, and revenue attribution from Stripe, LemonSqueezy, Polar, Dodo, Yolfi or a manual payment API. The open-source edition is a subset of the commercial product.",
+    "upstream": {
+      "repo_url": "https://github.com/talivia-group/talivia",
+      "homepage_url": "https://talivia.com/",
+      "license": "MIT",
+      "license_url": "https://github.com/talivia-group/talivia/blob/main/LICENSE",
+      "self_hosting_permitted": true
+    }
+  },
+  "review": {
+    "review_slug": "talivia-group-talivia-acfdc1",
+    "review_url": "https://pixapps.ai/reviews/talivia-group-talivia-acfdc1/"
+  },
+  "discovery": {
+    "categories": ["analytics"],
+    "use_cases": [
+      "Web analytics tied to revenue",
+      "Session replay",
+      "Payment and subscription attribution"
+    ],
+    "search_terms": [
+      "web analytics",
+      "revenue analytics",
+      "revenue attribution",
+      "session replay",
+      "product analytics",
+      "self-hosted analytics",
+      "stripe",
+      "lemonsqueezy",
+      "polar"
+    ]
+  },
+  "deployment": {
+    "provider": "railway",
+    "template_type": "official",
+    "route_url": "https://github.com/talivia-group/talivia",
+    "route_provenance": "The route is upstream's own Dockerfile, built by Railway directly from the upstream repository at a pinned commit. It is not a provider template: no official Railway template for Talivia exists, and the upstream repository references Railway nowhere — no deploy button, no railway.json, no mention anywhere in its tree. The one Railway template found (railway.com/deploy/talivia) was evaluated and rejected: it is published by an account unrelated to upstream, and its application service deploys a prebuilt Docker Hub image owned by a third, different account, carrying no overview, no source link and only a mutable 'latest' tag — nothing that can be pinned to an upstream commit, so no verification of it could name the exact thing deployed. Because upstream's Dockerfile is deployable as-is, this repository maintains no configuration for Talivia; only Railway service settings differ from the upstream defaults, and those are in the guide. See notes/talivia/2026-09-14-railway-route-research.md for the full comparison.",
+    "guide_path": "deployments/talivia/README.md",
+    "dependent_services": [
+      {
+        "name": "PostgreSQL",
+        "required": true,
+        "supplied_by": "provider",
+        "note": "The only required dependency. The application enforces a minimum of 9.4 at boot; upstream's own compose file and CI both exercise 17. Billed to the reader by the provider."
+      },
+      {
+        "name": "Payment provider account",
+        "required": false,
+        "supplied_by": "reader",
+        "note": "Only for revenue attribution. Stripe, LemonSqueezy, Polar, Dodo, Yolfi or the manual payment API. Web analytics and session replay work without one."
+      },
+      {
+        "name": "CoinGecko API key",
+        "required": false,
+        "supplied_by": "reader",
+        "note": "Optional crypto exchange-rate conversion. Upstream states the product remains usable when it is absent or unavailable."
+      }
+    ],
+    "constraints": [
+      "The open-source edition is a subset of the commercial product. Integrations upstream lists as Cloud-only — Google Search Console, Bing Webmaster Tools, GitHub activity and social mentions — are not available in a self-hosted instance.",
+      "The baseline database migration seeds an administrator account with a fixed user id and a password documented upstream, and nothing in the application forces a change. A provider that assigns a public HTTPS domain as soon as the service is healthy makes this reachable from the internet before the operator has changed it, so changing it is the first action after the first successful boot.",
+      "APP_SECRET signs sessions and also encrypts stored payment-provider credentials. Rotating it invalidates sessions and leaves saved provider credentials undecryptable. Generate it once and keep it for the life of the deployment.",
+      "Database migrations are applied automatically during container start, so redeploying a newer commit is a schema change and should be treated as one.",
+      "The revenue-attribution worker shipped in the repository is not run by the official container. Attribution is computed inline on the payment webhook path, but a queued or failed attribution job is not retried automatically. A manual retry endpoint exists, and running the worker would require a second service off the same image.",
+      "There is no migration path from a hosted Talivia database. The baseline migration assumes an empty database.",
+      "Upstream publishes no tagged releases, so a deployment is pinned by commit rather than by version.",
+      "Payment-provider webhook URLs are derived from the forwarded host and protocol headers of the incoming request, so the deployment must sit behind a proxy that forwards the original host.",
+      "An optional ClickHouse backend exists in the tree but is undocumented upstream and is not applied by the container's start sequence. The supported configuration stores analytics, including session replays, in PostgreSQL."
+    ]
+  },
+  "states": {
+    "work_state": "awaiting_human_verification",
+    "listing_state": "unlisted"
+  },
+  "notes_paths": ["notes/talivia/2026-09-14-railway-route-research.md"]
+}
