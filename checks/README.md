@@ -25,6 +25,27 @@ or optional.
 the deployment completes, initial configuration completes, the product's main
 flow works, the public and authentication behaviour is understood, and any
 required persistence survives a restart. `experimental` does not waive them.
+The definitions themselves are in [`checks.json`](checks.json), which is what
+the validator reads; this file explains them.
+
+**How the answers decide the listing state.** The line is mechanical, so that
+neither state is a matter of mood:
+
+| Listing state | Required checks | Anything outstanding |
+| --- | --- | --- |
+| `tested` | every one `passed`, or `not_applicable` with a reason | nothing: no check left `not_tested`, no failed check, and an empty `not_tested` list |
+| `experimental` | every one `passed`, or `not_applicable` with a reason | at least one named gap — an entry in the record's `not_tested`, or an optional check left `not_tested` |
+| neither | a required check `failed`, `not_tested`, or missing | — |
+
+An optional check you did not run is a real gap, and naming it is the point: it
+makes the record honest and puts the listing at `experimental`, which is an
+accurate description rather than a demotion. If a check genuinely does not apply
+to a product, answer `not_applicable` with the reason instead of leaving it
+unanswered.
+
+Adding a **required** check invalidates every existing listing until each one
+answers it. That is intended — see
+[`../schemas/VERSIONING.md`](../schemas/VERSIONING.md).
 
 An automated smoke check, where one exists, is a convenience. It is evidence
 about a deployment; it is not a person's verification and never substitutes for

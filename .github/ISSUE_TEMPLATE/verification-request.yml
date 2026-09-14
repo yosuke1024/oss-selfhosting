@@ -1,0 +1,79 @@
+name: Verification request
+description: A product prepared for deployment, waiting for a person to verify it on a real account.
+title: "[Verify] <product>"
+labels: ["verification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One product per issue. This is the hand-off to a human: everything below
+        describes what was *prepared*, and nothing in it is a verification.
+        Opening this issue makes no claim about the product.
+  - type: input
+    id: product-slug
+    attributes:
+      label: Product slug
+      description: The slug used for catalog/projects/<slug>.json.
+      placeholder: example-product
+    validations:
+      required: true
+  - type: input
+    id: review-url
+    attributes:
+      label: Published review
+      description: The JuryPress review this product is listed against. A product with no published review cannot be listed.
+      placeholder: https://pixapps.ai/reviews/...
+    validations:
+      required: true
+  - type: input
+    id: draft-pr
+    attributes:
+      label: Draft pull request
+      description: The prepared record, guide and any deployment configuration.
+      placeholder: https://github.com/yosuke1024/oss-selfhosting/pull/...
+    validations:
+      required: true
+  - type: input
+    id: target-version
+    attributes:
+      label: Version to verify
+      description: The exact commit or image digest the verification should cover. A tag alone moves.
+      placeholder: "commit 1111... or sha256:..."
+    validations:
+      required: true
+  - type: textarea
+    id: route
+    attributes:
+      label: Route to use
+      description: Official template, trusted community template, or configuration maintained here — with the URL and why that one.
+    validations:
+      required: true
+  - type: textarea
+    id: required-checks
+    attributes:
+      label: Required checks and their expected result
+      description: What to do for each required check in checks/checks.json, and what passing looks like for this product.
+      value: |
+        - deploy-completes:
+        - initial-setup-completes:
+        - primary-flow-works:
+        - access-and-auth-understood:
+        - persistence-survives-restart:
+    validations:
+      required: true
+  - type: textarea
+    id: unknowns
+    attributes:
+      label: Known unknowns
+      description: What preparation could not establish, and anything the verifier should expect to go wrong.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundaries
+      options:
+        - label: No credentials, account identifiers or private JuryPress data appear in this issue.
+          required: true
+        - label: Nothing in this issue or the linked pull request is marked verified, tested or approved.
+          required: true

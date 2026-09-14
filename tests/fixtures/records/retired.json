@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "fixture",
+  "product": {
+    "slug": "example-retired",
+    "name": "Example Retired Product",
+    "summary": "A fictional product that was listed once and is no longer recommended.",
+    "upstream": {
+      "repo_url": "https://github.com/example-org/example-retired",
+      "license": "Apache-2.0",
+      "self_hosting_permitted": true
+    }
+  },
+  "review": {
+    "review_slug": "example-org-example-retired-7a8b9c",
+    "review_url": "https://pixapps.ai/reviews/example-org-example-retired-7a8b9c/"
+  },
+  "discovery": {
+    "categories": [
+      "analytics"
+    ],
+    "use_cases": [
+      "Web analytics for a small site"
+    ]
+  },
+  "deployment": {
+    "provider": "railway",
+    "template_type": "community",
+    "guide_path": "deployments/example-retired/README.md",
+    "dependent_services": [
+      {
+        "name": "PostgreSQL",
+        "required": true,
+        "supplied_by": "reader"
+      }
+    ]
+  },
+  "states": {
+    "work_state": "verified",
+    "listing_state": "retired",
+    "retirement": {
+      "retired_at": "2026-09-13",
+      "reason": "Upstream archived the repository and stopped publishing security fixes. The record is kept so the history of the listing stays readable."
+    }
+  },
+  "verification": {
+    "verifier": "yosuke1024",
+    "verified_at": "2026-09-10",
+    "target": {
+      "upstream_commit": "3333333333333333333333333333333333333333"
+    },
+    "checks": [
+      {
+        "check_id": "deploy-completes",
+        "result": "passed"
+      },
+      {
+        "check_id": "initial-setup-completes",
+        "result": "passed"
+      },
+      {
+        "check_id": "primary-flow-works",
+        "result": "passed"
+      },
+      {
+        "check_id": "access-and-auth-understood",
+        "result": "passed"
+      },
+      {
+        "check_id": "persistence-survives-restart",
+        "result": "passed"
+      }
+    ],
+    "not_tested": [
+      "Nothing further was exercised after the upstream project was archived."
+    ],
+    "config_digest": "602ba046dbbf6be44490d9310d724543e39ebcd9d65422e3407e29d985629802"
+  }
+}

@@ -1,0 +1,51 @@
+name: Correction or verification result
+description: Something listed here is wrong, stale, or behaved differently when you deployed it.
+title: "[Correction] <product>"
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Corrections are reviewed before new listings. If you deployed something
+        listed here and got a different result, that is the most useful report
+        this repository can receive.
+  - type: input
+    id: product-slug
+    attributes:
+      label: Product
+      placeholder: example-product
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem
+      options:
+        - A step in the guide is wrong or no longer works
+        - The verified version is stale
+        - A dependency or requirement changed
+        - I deployed it and got a different result
+        - The upstream licence or project status changed
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: If you deployed it — which version, which route, and what you saw. Say what you did not test.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the record or guide says instead
+    validations:
+      required: false
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Before submitting
+      options:
+        - label: This report contains no credentials, API keys, account identifiers or personal deploy URLs.
+          required: true

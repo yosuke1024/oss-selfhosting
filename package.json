@@ -1,0 +1,20 @@
+{
+  "name": "oss-selfhosting-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The OSS Self-Hosting catalog contract, its validator and the index generator.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate": "node scripts/catalog.mjs validate",
+    "index:check": "node scripts/catalog.mjs index --check",
+    "index:write": "node scripts/catalog.mjs index --write",
+    "contract:check": "node scripts/catalog.mjs contract --check",
+    "contract:write": "node scripts/catalog.mjs contract --write",
+    "test": "node --test 'tests/*.test.mjs'",
+    "check": "npm run validate && npm run index:check && npm run contract:check && npm test"
+  }
+}

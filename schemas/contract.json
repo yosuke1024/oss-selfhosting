@@ -1,0 +1,110 @@
+{
+  "contract_version": "1.0.0",
+  "supported_schema_versions": [
+    "1.0.0"
+  ],
+  "description": "The OSS Self-Hosting catalog contract: the schemas, the validation rules and the required-check suite. Pin a commit of this repository and call the entry points below; do not reimplement the rules.",
+  "dialect": {
+    "base": "https://json-schema.org/draft/2020-12/schema",
+    "note": "The bundled validator implements the keywords listed here and refuses to load a schema that uses any other. A consumer using a full JSON Schema implementation instead will read the same schemas correctly; the structural schemas are not the whole contract, and the rules in scripts/lib/rules.mjs are the rest.",
+    "keywords": [
+      "$defs",
+      "$id",
+      "$ref",
+      "$schema",
+      "additionalProperties",
+      "allOf",
+      "anyOf",
+      "const",
+      "deprecated",
+      "description",
+      "enum",
+      "examples",
+      "items",
+      "maxItems",
+      "maxLength",
+      "maxProperties",
+      "maximum",
+      "minItems",
+      "minLength",
+      "minProperties",
+      "minimum",
+      "not",
+      "oneOf",
+      "pattern",
+      "properties",
+      "required",
+      "title",
+      "type",
+      "uniqueItems"
+    ]
+  },
+  "entry_points": {
+    "validate_repository": "scripts/lib/validate.mjs#validateRepository",
+    "validate_documents": "scripts/lib/validate.mjs#validateLoadedCatalog",
+    "rules": "scripts/lib/rules.mjs#validateCatalog",
+    "config_digest": "scripts/lib/digest.mjs#computeConfigDigest",
+    "schemas": "schemas/",
+    "cli": "scripts/catalog.mjs"
+  },
+  "runtime": {
+    "node": ">=22",
+    "dependencies": [],
+    "network": false,
+    "credentials": false
+  },
+  "files": [
+    {
+      "path": "schemas/common.schema.json",
+      "sha256": "418be4426626093bfc07583286229093dfcc7368c328916ea8efd32db6aafc87"
+    },
+    {
+      "path": "schemas/product-record.schema.json",
+      "sha256": "c7a9560b09ea84f021450322a8ba31fd015648474d5ec76744cce088f820d0b8"
+    },
+    {
+      "path": "schemas/bundle.schema.json",
+      "sha256": "89c5dc5bfd9c013bd71f307460ab71c767e76f5e02f04594759ccea403fa779c"
+    },
+    {
+      "path": "schemas/check-definition.schema.json",
+      "sha256": "6f969b63d54aceb07b4485939880dfc5a90c652c84251120f8db9fd9169b74dd"
+    },
+    {
+      "path": "checks/checks.json",
+      "sha256": "11b906edae3c72a6bec3bce63cef449bf9468619cb893bfb8342de4ca60eac29"
+    },
+    {
+      "path": "scripts/lib/contract.mjs",
+      "sha256": "662754f630947e7e46a88e6aba23f99b94877c9f15861efab7fd7f4913b4e97a"
+    },
+    {
+      "path": "scripts/lib/digest.mjs",
+      "sha256": "d270206aaf0526782746b1452a1fb505c91f05e6d6bde24ae95810cf568a94bc"
+    },
+    {
+      "path": "scripts/lib/json.mjs",
+      "sha256": "588e1b7cd7036fec6d7db86a0371588d385861a5220fc2087062444fa4dd955e"
+    },
+    {
+      "path": "scripts/lib/loader.mjs",
+      "sha256": "f49fd36e647fd4e8144c067396d4621a0cfbe5eac4442cb75c46b7a17829b040"
+    },
+    {
+      "path": "scripts/lib/rules.mjs",
+      "sha256": "b99c2ba42ae3099312021763e8bd8eeb6f257d08a9b8957e54ee35cd214950ab"
+    },
+    {
+      "path": "scripts/lib/schema.mjs",
+      "sha256": "804b7b0876b13567e57bcec669b1f57fe1cc7ca77cc4d1e84f973563a1c489f1"
+    },
+    {
+      "path": "scripts/lib/urls.mjs",
+      "sha256": "88c2b918f489a419ba7563ae92f378c11759114a63f07bc5fa12f41fb6ab8497"
+    },
+    {
+      "path": "scripts/lib/validate.mjs",
+      "sha256": "798d68372a9ac2125e6ca590ba632dc93912cc7b236eb83b7b589e6651ebd81b"
+    }
+  ]
+}

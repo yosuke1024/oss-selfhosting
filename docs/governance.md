@@ -50,6 +50,38 @@ forward. Re-verification is required, and the date is only then updated, when:
 Never update a verification date without redoing the verification. An old date
 that is honestly old is more useful than a fresh date that is not true.
 
+### After an approval, a configuration change needs both again
+
+This is the case the rules above are easiest to break by accident: the record is
+approved, and then someone edits it. A newer commit, a different template, an
+added service, a changed `Dockerfile` — each one means the approved listing now
+describes a deployment nobody performed.
+
+So the inputs that decide what actually gets deployed are hashed into a
+**deployment configuration digest**: the upstream repository and licence, the
+provider, the route type and URL, the dependent services, the verified target
+(commit, version, image digest, template revision), and the contents of any
+non-prose file under `deployments/<slug>/`. The verification records the digest
+it covers, and the approval records the digest that was signed off.
+
+| Change | Effect |
+| --- | --- |
+| Any digest input changes | Both digests go stale. The validator fails the change until the deployment is **re-verified** on the current configuration and **re-approved** by the owner. |
+| The prose guide or a note is edited | Nothing goes stale. Fixing a typo does not invalidate a deployment that was actually performed. |
+| A required check is added to the suite | Every listing is invalid until it answers the new check. |
+
+Re-verification means redoing the required checks on the current configuration
+and writing a new `verified_at`. Re-approval means the owner looking at that
+result and recording a new `approved_at` — an approval carried over from the
+previous configuration is exactly what the digest exists to prevent. Approval of
+one change is not approval of the next.
+
+Recompute the digest with:
+
+```bash
+node scripts/catalog.mjs digest <product-slug>
+```
+
 ## What actually enforces this
 
 `CODEOWNERS` on its own enforces nothing. It requests a reviewer; it does not
@@ -77,12 +109,25 @@ inversion of its purpose: the human is blocked and the machine is not.
 Until those settings exist, the approval gate is documentation only. The
 project does not claim otherwise.
 
-The validator (not implemented yet) is the second half: it fails a pull request
-that marks anything `tested` without a complete verification record, that
-carries a verification date in the future, that duplicates a product slug, that
-references a product with no published review, or that mixes test fixtures into
-the production catalog. Documentation states the rule; the check is what keeps
-it true.
+The validator is the second half, and it exists: `Validate catalog`
+(`.github/workflows/ci.yml`) fails a pull request that marks anything `tested`
+or `experimental` without a complete verification record and a recorded human
+approval, that leaves a required check unanswered or failed, that carries a
+verification or approval date in the future, that approves one configuration and
+ships another, that duplicates a product slug, that points a link somewhere
+unsafe, or that mixes test fixtures into the production catalog. The full list
+is in [`../scripts/README.md`](../scripts/README.md); it runs with no
+credentials and no network, so a fork's pull request gets the same answer.
+
+Documentation states the rule; the check is what keeps it true. Add it as a
+required status check on `main` — it is the check
+[repository-settings.md](repository-settings.md) leaves a placeholder for.
+
+What the validator cannot do is confirm that a deployment happened. It checks
+that a claim is complete, internally consistent and approved by a person; it
+cannot tell a true verification from a carefully written false one. That gap is
+covered by one rule and no mechanism: do not record a verification you did not
+perform.
 
 ## Pull request flow
 

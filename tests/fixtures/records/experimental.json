@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0.0",
+  "data_class": "fixture",
+  "product": {
+    "slug": "example-experimental",
+    "name": "Example Experimental Product",
+    "summary": "A fictional product whose deployment worked but left areas unexercised.",
+    "upstream": {
+      "repo_url": "https://github.com/example-org/example-experimental",
+      "license": "MIT",
+      "self_hosting_permitted": true
+    }
+  },
+  "review": {
+    "review_slug": "example-org-example-experimental-d4e5f6",
+    "review_url": "https://pixapps.ai/reviews/example-org-example-experimental-d4e5f6/"
+  },
+  "discovery": {
+    "categories": [
+      "productivity"
+    ],
+    "use_cases": [
+      "Shared notes for a small team"
+    ]
+  },
+  "deployment": {
+    "provider": "railway",
+    "template_type": "maintained_here",
+    "route_url": "https://railway.com/deploy?template=https%3A%2F%2Fgithub.com%2Fyosuke1024%2Foss-selfhosting",
+    "route_provenance": "No official or community template exists; the configuration in this repository was written for it.",
+    "maintained_path": "deployments/example-experimental",
+    "guide_path": "deployments/example-experimental/README.md",
+    "dependent_services": [
+      {
+        "name": "PostgreSQL",
+        "required": true,
+        "supplied_by": "reader"
+      }
+    ],
+    "constraints": [
+      "Object storage is not configured; uploads stay on the instance disk."
+    ]
+  },
+  "states": {
+    "work_state": "verified",
+    "listing_state": "experimental",
+    "approval": {
+      "approved": true,
+      "approved_by": "yosuke1024",
+      "approved_at": "2026-09-12",
+      "approved_config_digest": "e844aa0311059288426f1efa516b35388c6e984298a8876e50850b3a716cfc94"
+    }
+  },
+  "verification": {
+    "verifier": "yosuke1024",
+    "verified_at": "2026-09-12",
+    "target": {
+      "image_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "upstream_version": "1.9.3"
+    },
+    "checks": [
+      {
+        "check_id": "deploy-completes",
+        "result": "passed"
+      },
+      {
+        "check_id": "initial-setup-completes",
+        "result": "passed"
+      },
+      {
+        "check_id": "primary-flow-works",
+        "result": "passed"
+      },
+      {
+        "check_id": "access-and-auth-understood",
+        "result": "passed"
+      },
+      {
+        "check_id": "persistence-survives-restart",
+        "result": "passed"
+      },
+      {
+        "check_id": "backup-and-restore",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "upgrade-path",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "cost-observed",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "automated-smoke-check",
+        "result": "not_applicable",
+        "reason": "No smoke check is maintained for this product."
+      }
+    ],
+    "not_tested": [
+      "Behaviour with more than a handful of concurrent users was never exercised."
+    ],
+    "config_digest": "e844aa0311059288426f1efa516b35388c6e984298a8876e50850b3a716cfc94"
+  }
+}

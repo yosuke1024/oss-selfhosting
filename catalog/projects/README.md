@@ -38,5 +38,23 @@ and would breach the licence boundary in [`LICENSING.md`](../../LICENSING.md).
   the contract has no room for means the contract needs changing first.
 
 The schema and validator that enforce all of this live in
-[`../../schemas/`](../../schemas/) and [`../../scripts/`](../../scripts/), and
-are not implemented yet.
+[`../../schemas/product-record.schema.json`](../../schemas/product-record.schema.json)
+and [`../../scripts/`](../../scripts/). The schema is the field reference: every
+field carries a description of what belongs in it.
+
+Two mechanics worth knowing before writing a record:
+
+- **`verification.config_digest` and `approval.approved_config_digest`** bind a
+  verification and its approval to the deployment they actually covered. Compute
+  them with `node scripts/catalog.mjs digest <product-slug>`; change what gets
+  deployed and both go stale, which is the point. See
+  [`../../docs/governance.md`](../../docs/governance.md).
+- **`tested` versus `experimental`** is decided by what is outstanding, not by
+  confidence. The table in [`../../checks/README.md`](../../checks/README.md)
+  is the rule the validator applies.
+
+Validate before pushing:
+
+```bash
+node scripts/catalog.mjs validate
+```
