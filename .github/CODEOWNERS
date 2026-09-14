@@ -1,0 +1,18 @@
+# Code owners for yosuke1024/oss-selfhosting.
+#
+# CODEOWNERS by itself only REQUESTS a review — it does not require one and it
+# does not block a merge. The enforcement is the repository ruleset on `main`
+# with "require review from Code Owners" enabled and an empty bypass list.
+# See docs/repository-settings.md. Do not treat this file as the approval gate.
+
+*                       @yosuke1024
+
+# Listing decisions and the contract they depend on. Same owner today; listed
+# separately so a future split of duties cannot silently drop the approval on
+# the paths where a wrong merge would publish an unverified claim.
+/catalog/               @yosuke1024
+/deployments/           @yosuke1024
+/checks/                @yosuke1024
+/schemas/               @yosuke1024
+/scripts/               @yosuke1024
+/.github/               @yosuke1024
