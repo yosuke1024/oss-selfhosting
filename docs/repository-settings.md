@@ -15,6 +15,7 @@ documentation only.
 | Description | Human-verified self-hosting guides for open-source products. Curated by JuryPress. |
 | Visibility | Public |
 | Default branch | `main` |
+| Website | Leave empty for now. There is no site for this repository, and pointing it at the JuryPress site would land a visitor somewhere other than the catalog they clicked for. Set it to the self-hosting section's URL once that section is live. |
 | Operator | [@yosuke1024](https://github.com/yosuke1024) |
 
 Applied: repository created, public, Apache-2.0 at the root.
@@ -23,9 +24,12 @@ Not yet applied: description, topics, feature toggles, ruleset.
 ## Topics
 
 ```text
-self-hosting  selfhosted  open-source  catalog
-deployment    docker      railway      homelab   jurypress
+self-hosted   selfhosted  self-hosting  open-source  catalog
+deployment    docker      railway       homelab      jurypress
 ```
+
+`self-hosted`, `selfhosted` and `self-hosting` are three distinct topics on
+GitHub, all of them in real use. All three are listed on purpose.
 
 Topics are how this repository is found on GitHub, and there is no separate
 website for it. Keep them descriptive of what the repository *is*; do not add a
@@ -42,6 +46,12 @@ product's topic in order to appear in that product's searches.
 | Discussions | Off initially | Revisit once there is something to discuss. |
 | Forking | On | CC BY 4.0 material; forking is expected. |
 | Web commit signoff | Off | No DCO process defined. |
+
+"Include in the home page" (the checkboxes on the repository details dialog):
+uncheck **Releases** and **Packages** — neither is planned, and they only add
+empty sections to the About box. Leave **Deployments** unchecked; it refers to
+GitHub's deployment environments, which are unrelated to this repository's
+`deployments/` directory.
 
 ## Ruleset for `main`
 
