@@ -1,5 +1,14 @@
 # OSS Self-Hosting Catalog
 
+> **Status — no longer maintained (2026-10-10).** This catalog was wound down
+> by its owner after the first product, Talivia, had been deployed once and its
+> record written. The records, guides and notes are left exactly as they stood
+> that day and are not kept current: no listing is live, no route is
+> re-verified, and nothing here should be read as a current recommendation.
+> The reasoning is in
+> [`notes/talivia/2026-10-10-railway-marketplace-analysis.md`](notes/talivia/2026-10-10-railway-marketplace-analysis.md).
+
+
 **Human-verified self-hosting guides for open-source products. Curated by JuryPress.**
 
 Every product listed here has been deployed by a person, on a real account, and
