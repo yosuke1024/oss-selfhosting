@@ -446,6 +446,11 @@ The 2026-09-14 items are otherwise closed or answered as in §2: O-1 is moot, O-
 is answered (no `sslmode`), O-5 and O-6 are answered in part, O-7 is answered
 (not honoured), and O-8 is unanswered.
 
-**State at the time of writing:** `work_state` is `awaiting_human_verification`
-and `listing_state` is `unlisted`. The product record carries no verification
-block, and none was added.
+**State at the time of writing:** this note was drafted while `work_state`
+was `awaiting_human_verification` and the record carried no verification
+block. Later the same day the owner reviewed the checks and the record moved to
+`work_state: verified`, `listing_state: unlisted`, with a verification block
+naming `a9bdc51…` and the image digest, two required checks `not_tested`
+(`primary-flow-works`, `persistence-survives-restart`), and therefore no
+listing. The §8 table above describes what bore on each check before that
+record was written; the record, not this note, is the result.
