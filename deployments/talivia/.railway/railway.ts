@@ -18,43 +18,49 @@
  * `APP_SECRET`, and the public domain.
  *
  * ---------------------------------------------------------------------------
- * WHAT IS ESTABLISHED, AND WHAT IS NOT
+ * WHAT THIS FILE CAN AND CANNOT FIX
  *
- * Every value below is traceable to upstream's source at the pinned commit, to
- * Railway's own documentation, or to the Railway TypeScript SDK's types — see
- * the comment on each. None of it has been applied to a live Railway project.
- * `railway config plan` is the first thing that tests any of it, and a healthy
- * deployment is the first thing that tests the runtime values. Until then the
- * product record carries no verification block, and that is correct.
+ * It fixes settings: the source branch, the health check, the database
+ * reference and the port. It cannot fix the commit. Railway deploys the head
+ * of the branch at the moment of apply — its API has no commit on a service
+ * source, so a commit written here is ignored (observed 2026-10-10: the file
+ * declared one commit, the deployment built a newer head). The commit a
+ * deployment actually built is read afterwards from Railway:
  *
- * Open items this file cannot settle, tracked in
- * ../../../notes/talivia/2026-09-14-railway-route-research.md §6:
+ *     railway deployment list --service talivia --json   → meta.commitHash
  *
- *   O-1  Whether the Next.js standalone server honours PORT. See the PORT note.
- *   O-4  Whether DATABASE_URL over the private network needs an sslmode
- *        parameter. Deliberately not guessed here — the boot connection either
- *        succeeds or names the reason, and that answer belongs in the record.
+ * and that, together with meta.imageDigest, is what a verification names.
+ *
+ * The maintainer applied this file once, on 2026-10-10, on their own account:
+ * the service came up healthy and passed the smoke check. That is evidence,
+ * not a verification; the checks a person performs are listed in
+ * ../README.md and ../../../checks/checks.json, and until they are done the
+ * product record carries no verification block.
+ *
+ * Open items that cannot be settled from this file are tracked in
+ * ../../../notes/talivia/2026-10-10-railway-first-apply.md.
  * ---------------------------------------------------------------------------
  */
 
 import { defineRailway, github, postgres, preserve, project, service } from "railway/iac";
 
 /**
- * Upstream ships no tagged releases, so the deployment is pinned by commit.
- * This is the commit the published review was generated against and the commit
- * any verification of this configuration must name.
+ * Upstream ships no tagged releases. The branch is the only ref Railway will
+ * follow from this file; the commit it resolves to is recorded per deployment
+ * (see the header), never here.
  */
 const UPSTREAM_REPO = "talivia-group/talivia";
 const UPSTREAM_BRANCH = "main";
-const UPSTREAM_COMMIT = "2d3ec339072723f4c7f0335e513aaadae3a31603";
 
 export default defineRailway(() => {
   /**
    * Railway's managed PostgreSQL. Upstream enforces a minimum of 9.4.0 at boot
    * and exercises 17 in its own compose file and CI; Railway's `postgres()`
-   * currently resolves to `ghcr.io/railwayapp-templates/postgres-ssl:18`, which
-   * clears the minimum but is a version upstream does not itself test. The
-   * image is Railway's choice, not ours — `postgres()` takes no version option.
+   * resolves to `ghcr.io/railwayapp-templates/postgres-ssl:18` (observed on
+   * apply), which clears the minimum but is a version upstream does not itself
+   * test. On 2026-10-10 the application connected, passed its own version
+   * check and applied its migrations against it. The image is Railway's
+   * choice, not ours — `postgres()` takes no version option.
    *
    * Managed PostgreSQL is used deliberately rather than a self-run container:
    * a self-run `postgres` image on Railway needs PGDATA pointed at a
@@ -71,39 +77,35 @@ export default defineRailway(() => {
      * from the upstream repository. No third-party template and no image this
      * repository builds or hosts.
      *
-     * `commitSha` is present in the SDK's `ServiceSource` type and survives
-     * compilation into the graph, but it is NOT in Railway's published IaC
-     * documentation, which shows only `branch` and `rootDirectory`. Whether the
-     * Railway backend honours it on apply is therefore unverified: the `plan`
-     * output is the first place that shows, and it is the first thing to read
-     * there. If it is not honoured, the deployment tracks the branch head
-     * instead of the reviewed commit, and that must be recorded rather than
-     * papered over — a verification that cannot name the deployed commit is not
-     * a verification.
+     * Two things are deliberately NOT here, because Railway does not honour
+     * them and a field that does nothing misleads:
+     *
+     *   - `commitSha`. The SDK's `ServiceSource` type has it; the backend
+     *     ignores it (see the header). The branch head at apply time is what
+     *     you get.
+     *   - `build: { builder: "DOCKERFILE" }`. Railway's `Builder` enum is
+     *     HEROKU | NIXPACKS | PAKETO | RAILPACK — there is no DOCKERFILE value.
+     *     Upstream's Dockerfile is used because Railway detects it at the
+     *     repository root (observed: the deployment manifest resolved to
+     *     builder DOCKERFILE, dockerfilePath /Dockerfile, and the build log
+     *     shows upstream's deps → builder → runner stages). Detection is the
+     *     mechanism; the field is not.
      */
-    source: github(UPSTREAM_REPO, {
-      branch: UPSTREAM_BRANCH,
-      commitSha: UPSTREAM_COMMIT,
-    }),
-
-    /**
-     * Upstream's Dockerfile is the supported build. Its builder stage supplies
-     * its own dummy DATABASE_URL, so the build needs no database linkage.
-     */
-    build: { builder: "DOCKERFILE" },
+    source: github(UPSTREAM_REPO, { branch: UPSTREAM_BRANCH }),
 
     /**
      * `/` redirects to `/login`, so a health check pointed at the root never
      * reaches the application's health logic. `/api/heartbeat` is the endpoint
      * upstream's own compose health check uses; it returns
-     * `{"ok":true,"version":…}`, and that `version` is what pins a running
-     * deployment to a built artifact.
+     * `{"ok":true,"version":…}`. Note that `version` is "local" on Railway —
+     * the Dockerfile's BUILD_VERSION build arg is not supplied — so it does
+     * not identify the artifact. The deployment's imageDigest does.
      *
      * The timeout is Railway's documented default, stated explicitly because
      * migrations run before the server starts: `check-db.js` runs
-     * `prisma migrate deploy` on every boot, so first boot is the slow one. If
-     * a first deployment times out here while the logs show migrations still
-     * running, this is the number to raise.
+     * `prisma migrate deploy` on every boot, so first boot is the slow one.
+     * Observed 2026-10-10: three migrations and a healthy service well inside
+     * the window.
      */
     healthcheck: "/api/heartbeat",
     healthcheckTimeout: 300,
@@ -112,7 +114,9 @@ export default defineRailway(() => {
       /**
        * A reference to the managed PostgreSQL over the private network, not a
        * literal. Railway resolves it at deploy time, so no connection string is
-       * ever written to this repository.
+       * ever written to this repository. Observed: resolves to
+       * postgres.railway.internal:5432, and the application connected without
+       * any sslmode parameter.
        */
       DATABASE_URL: db.env.DATABASE_URL,
 
@@ -124,20 +128,23 @@ export default defineRailway(() => {
        * already holds and leaves this file with no secret in it — so a plan or
        * an apply run from this repository can neither set it nor print it.
        *
-       * The operator sets it once, out of band, BEFORE the first apply:
+       * The operator sets it once, out of band, right after the first apply:
        *
-       *     railway variables --set "APP_SECRET=$(openssl rand -hex 32)"
+       *     openssl rand -hex 32 | railway variable set APP_SECRET --stdin --service talivia --skip-deploys
        *
-       * Two things make this the only safe shape:
+       * Railway reads variables when the container starts, not when the
+       * deployment is created (observed 2026-10-10: set during the first build,
+       * present at first boot). So set it while the first build is running —
+       * builds take a few minutes — and the first boot passes `check-env.js`.
+       * If the container starts first, `check-env.js` exits 1 because
+       * APP_SECRET is missing, shorter than 32 bytes, or still upstream's
+       * placeholder; setting the variable then (without --skip-deploys)
+       * triggers the redeploy. Either way, fail-fast is upstream's design
+       * working, not a fault here.
        *
-       *   - The container refuses to boot without it. `scripts/check-env.js`
-       *     exits 1 if APP_SECRET is missing, shorter than 32 bytes, or still
-       *     equal to upstream's placeholder. `preserve()` on a variable that
-       *     was never set leaves it unset, so setting it first is a real
-       *     ordering requirement, not a style preference.
-       *   - Rotating it invalidates every session and leaves saved provider
-       *     credentials undecryptable. It is generated once and kept for the
-       *     life of the deployment.
+       * Rotating it invalidates every session and leaves saved provider
+       * credentials undecryptable. It is generated once and kept for the
+       * life of the deployment.
        *
        * The SDK's `ctx.randomString()` looks like it would solve this and must
        * not be used for it: it is a plain SHA-256 of
@@ -164,8 +171,9 @@ export default defineRailway(() => {
        *   - 3000:  if the server honours PORT it binds 3000; if it ignores PORT
        *     it binds 3000 anyway. The health check probes 3000 either way.
        *
-       * Setting it to 3000 is correct under both answers to O-1, which is why
-       * it is here. It is still unverified until a deployment is healthy.
+       * Observed 2026-10-10: the server reported 0.0.0.0:3000 and the health
+       * check passed. Whether it honours an injected PORT is still unknown and,
+       * under this configuration, does not matter.
        */
       PORT: "3000",
     },
@@ -180,7 +188,9 @@ export default defineRailway(() => {
      * port 8080, which is not the port this container listens on. The public
      * domain is created out of band, with its target port stated:
      *
-     *     railway domain --port 3000
+     *     railway domain --port 3000 --service talivia
+     *
+     * which yields a `https://<service>-<environment>.up.railway.app` address.
      */
   });
 
