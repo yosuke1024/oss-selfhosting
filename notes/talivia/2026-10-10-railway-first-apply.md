@@ -414,10 +414,13 @@ from the maintainer's apply. It is not a result.
 
 Two practical points for whoever does this:
 
-- **The maintainer's deployment is publicly reachable,** at a generated
-  address. The bootstrap password was changed on 2026-10-10, shortly after the
-  domain was created, which closed the window the guide describes. On any
-  other deployment, do that first.
+- **The maintainer's deployment was publicly reachable** for a few hours on
+  2026-10-10, at a generated address. The bootstrap password was changed
+  shortly after the domain was created, which closed the window the guide
+  describes. Later the same day, after the verification was recorded, the
+  owner deleted the Railway project — the database, the service and the
+  domain are gone, and nothing in this repository refers to them. On any other
+  deployment, change the password first.
 - For `persistence-survives-restart`, read `meta.commitHash` before and after the
   restart. If a redeploy rebuilds from a newer head (§9, O-11), the commit under
   test changes in the middle of the check, and the verification must say so.
