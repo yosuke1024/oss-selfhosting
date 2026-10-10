@@ -22,7 +22,7 @@ body:
     attributes:
       label: Published review
       description: The JuryPress review this product is listed against. A product with no published review cannot be listed.
-      placeholder: https://pixapps.ai/reviews/...
+      placeholder: https://pixapps.ai/jurypress/reviews/...
     validations:
       required: true
   - type: input

@@ -5,9 +5,20 @@
  */
 
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { parseJson } from '../scripts/lib/json.mjs';
-import { asProduction, codesOf, fixture, messagesOf, refreshDigests, validateDocuments } from './helpers.mjs';
+import {
+  FIXTURE_FILES,
+  FIXTURE_FILE_HASHES,
+  asProduction,
+  clone,
+  codesOf,
+  fixture,
+  messagesOf,
+  refreshDigests,
+  validateDocuments,
+} from './helpers.mjs';
 
 const record = async () => asProduction(await fixture('records/tested.json'));
 
@@ -99,6 +110,50 @@ test('maintained configuration is only for a route this repository maintains', a
   refreshDigests(maintained);
   const second = await validateDocuments({ records: [maintained] });
   assert.ok(codesOf(second).includes('MAINTAINED_PATH_REQUIRED'), messagesOf(second));
+});
+
+/**
+ * Provider tooling keeps its configuration in a dot-directory — Railway reads
+ * `.railway/railway.ts` — so a maintained path has to be able to name one. Only
+ * `..` is unsafe; a single leading dot is an ordinary directory, and the loader
+ * ignores exactly `.git` and `node_modules`, nothing else.
+ */
+const DOT_CONFIG = 'deployments/example-experimental/.railway/railway.ts';
+const SIBLING = 'deployments/example-experimental/smoke.mjs';
+const hashOf = (text) => createHash('sha256').update(text).digest('hex');
+
+test('maintained configuration may live in a dot-directory', async () => {
+  const document = asProduction(await fixture('records/experimental.json'));
+  document.deployment.maintained_path = 'deployments/example-experimental/.railway';
+
+  const files = new Set([...FIXTURE_FILES, DOT_CONFIG]);
+  const fileHashes = { ...FIXTURE_FILE_HASHES, [DOT_CONFIG]: hashOf('export default 1;\n') };
+  refreshDigests(document, fileHashes);
+
+  const result = await validateDocuments({ records: [document], files, fileHashes });
+  assert.equal(result.errors.length, 0, messagesOf(result));
+});
+
+test('the configuration digest covers the maintained directory and nothing beside it', async () => {
+  const document = asProduction(await fixture('records/experimental.json'));
+  document.deployment.maintained_path = 'deployments/example-experimental/.railway';
+
+  // A guide is prose and excluded everywhere. A sibling *script* is not prose,
+  // so only the maintained_path prefix keeps it out of the digest — which is
+  // why that path names a dedicated directory rather than the product's own.
+  const base = { ...FIXTURE_FILE_HASHES, [DOT_CONFIG]: hashOf('config v1'), [SIBLING]: hashOf('smoke v1') };
+  const digestOf = (fileHashes) => refreshDigests(clone(document), fileHashes).verification.config_digest;
+
+  assert.equal(
+    digestOf(base),
+    digestOf({ ...base, [SIBLING]: hashOf('smoke v2') }),
+    'a file outside maintained_path must not invalidate a verification',
+  );
+  assert.notEqual(
+    digestOf(base),
+    digestOf({ ...base, [DOT_CONFIG]: hashOf('config v2') }),
+    'a change to the maintained configuration must invalidate a verification',
+  );
 });
 
 test('a document is parsed as data, never as something that can touch a prototype', () => {

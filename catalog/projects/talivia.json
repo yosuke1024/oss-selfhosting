@@ -15,7 +15,7 @@
   },
   "review": {
     "review_slug": "talivia-group-talivia-acfdc1",
-    "review_url": "https://pixapps.ai/reviews/talivia-group-talivia-acfdc1/"
+    "review_url": "https://pixapps.ai/jurypress/reviews/talivia-group-talivia-acfdc1/"
   },
   "discovery": {
     "categories": ["analytics"],
@@ -38,16 +38,17 @@
   },
   "deployment": {
     "provider": "railway",
-    "template_type": "official",
+    "template_type": "maintained_here",
     "route_url": "https://github.com/talivia-group/talivia",
-    "route_provenance": "The route is upstream's own Dockerfile, built by Railway directly from the upstream repository at a pinned commit. It is not a provider template: no official Railway template for Talivia exists, and the upstream repository references Railway nowhere — no deploy button, no railway.json, no mention anywhere in its tree. The one Railway template found (railway.com/deploy/talivia) was evaluated and rejected: it is published by an account unrelated to upstream, and its application service deploys a prebuilt Docker Hub image owned by a third, different account, carrying no overview, no source link and only a mutable 'latest' tag — nothing that can be pinned to an upstream commit, so no verification of it could name the exact thing deployed. Because upstream's Dockerfile is deployable as-is, this repository maintains no configuration for Talivia; only Railway service settings differ from the upstream defaults, and those are in the guide. See notes/talivia/2026-09-14-railway-route-research.md for the full comparison.",
+    "route_provenance": "The route is upstream's own Dockerfile, built by Railway directly from the upstream repository at a pinned commit. It is not a provider template: no official Railway template for Talivia exists, and the upstream repository references Railway nowhere — no deploy button, no railway.json, no mention anywhere in its tree. The one Railway template found (railway.com/deploy/talivia) was evaluated and rejected: it is published by an account unrelated to upstream, and its application service deploys a prebuilt Docker Hub image owned by a third, different account, carrying no overview, no source link and only a mutable 'latest' tag — nothing that can be pinned to an upstream commit, so no verification of it could name the exact thing deployed. With no official and no trustworthy community route, the Railway-specific settings the deployment needs are maintained here instead, as a Railway Infrastructure as Code file at maintained_path: the source branch, the health check path, the private-network database reference and the port; the Dockerfile build is Railway's own detection of upstream's Dockerfile. The file cannot fix the commit: Railway deploys the head of the branch at the moment of apply and its API has no commit on a service source, so the commit a deployment actually built is read from the deployment afterwards and is what a verification names. Railway has no file-based template format, so this is configuration a reader applies to their own account with their own credentials, not a template this repository publishes. It carries no secret: APP_SECRET is preserved from the reader's own environment and the public domain is created out of band. See notes/talivia/2026-09-14-railway-route-research.md for the route comparison, notes/talivia/2026-09-14-railway-iac-research.md for why this shape, and notes/talivia/2026-10-10-railway-first-apply.md for what the first apply established.",
+    "maintained_path": "deployments/talivia/.railway",
     "guide_path": "deployments/talivia/README.md",
     "dependent_services": [
       {
         "name": "PostgreSQL",
         "required": true,
         "supplied_by": "provider",
-        "note": "The only required dependency. The application enforces a minimum of 9.4 at boot; upstream's own compose file and CI both exercise 17. Billed to the reader by the provider."
+        "note": "The only required dependency. The application enforces a minimum of 9.4 at boot; upstream's own compose file and CI both exercise 17, while Railway's managed PostgreSQL provisions 18, against which the application booted and applied its migrations on 2026-10-10. Billed to the reader by the provider."
       },
       {
         "name": "Payment provider account",
@@ -69,14 +70,76 @@
       "Database migrations are applied automatically during container start, so redeploying a newer commit is a schema change and should be treated as one.",
       "The revenue-attribution worker shipped in the repository is not run by the official container. Attribution is computed inline on the payment webhook path, but a queued or failed attribution job is not retried automatically. A manual retry endpoint exists, and running the worker would require a second service off the same image.",
       "There is no migration path from a hosted Talivia database. The baseline migration assumes an empty database.",
-      "Upstream publishes no tagged releases, so a deployment is pinned by commit rather than by version.",
+      "Upstream publishes no tagged releases, and Railway deploys the head of the branch at the moment of apply rather than a commit named in configuration. The commit a deployment actually built is read from the deployment and recorded; a later apply or redeploy can build a newer head, and because migrations run at start that is a schema change.",
       "Payment-provider webhook URLs are derived from the forwarded host and protocol headers of the incoming request, so the deployment must sit behind a proxy that forwards the original host.",
       "An optional ClickHouse backend exists in the tree but is undocumented upstream and is not applied by the container's start sequence. The supported configuration stores analytics, including session replays, in PostgreSQL."
     ]
   },
   "states": {
-    "work_state": "awaiting_human_verification",
+    "work_state": "verified",
     "listing_state": "unlisted"
   },
-  "notes_paths": ["notes/talivia/2026-09-14-railway-route-research.md"]
+  "verification": {
+    "verifier": "yosuke1024",
+    "verified_at": "2026-10-10",
+    "target": {
+      "upstream_commit": "a9bdc511b30067ddde72d48db30c69ee71289e80",
+      "image_digest": "sha256:cc02150b30ec4fbe9bafdcd50e30608ff7cba550241f0723697465a0d6bf95ab"
+    },
+    "checks": [
+      {
+        "check_id": "deploy-completes",
+        "result": "passed",
+        "observed": "Applied on 2026-10-10 from the owner's own Railway account with `railway config apply --file deployments/talivia/.railway/railway.ts`, run by the owner's Claude Code session at the owner's instruction and reviewed by the owner. Railway detected upstream's Dockerfile and the build log shows its deps, builder and runner stages. First boot: check-env passed, check-db reported the database connection and version check successful, three migrations applied (0001_oss_baseline, 20260911173000_backfill_visitor_first_session, 20260924181000_oss_installation_identity), then `node server.js` reported ready on 0.0.0.0:3000. The deployment reached SUCCESS, so the /api/heartbeat health check passed. It built the head of main at that moment, a9bdc51, not the commit the guide was first written against; the file does not pin a commit."
+      },
+      {
+        "check_id": "initial-setup-completes",
+        "result": "passed",
+        "observed": "The owner signed in with upstream's documented bootstrap credentials, changed the password under Settings → Account (/app/settings/account), signed out, and confirmed the old password is refused and the new one accepted. The owner then created a website in the Add website wizard and obtained its tracking snippet; the wizard's Revenue step was skipped."
+      },
+      {
+        "check_id": "primary-flow-works",
+        "result": "not_tested",
+        "observed": "The tracking snippet was obtained but not installed on any page, and no event was sent. The dashboard for the created website showed no visitors."
+      },
+      {
+        "check_id": "access-and-auth-understood",
+        "result": "passed",
+        "observed": "Signed out, / redirected to /login with 307 and an authenticated API route returned 401. The tracker script is served with Access-Control-Allow-Origin: *, which cross-origin tracking requires. The managed PostgreSQL has no public domain and no TCP proxy; the configuration declares neither, and DATABASE_URL resolves to the private-network host. These probes were run from the owner's session against the owner's deployment and the owner reviewed them."
+      },
+      {
+        "check_id": "persistence-survives-restart",
+        "result": "not_tested",
+        "observed": "No restart or redeploy was performed after the password change and website creation, so nothing was observed to survive one."
+      },
+      {
+        "check_id": "backup-and-restore",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "upgrade-path",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "cost-observed",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "automated-smoke-check",
+        "result": "passed",
+        "observed": "deployments/talivia/smoke.mjs against the owner's deployment on 2026-10-10: health endpoint responds (version \"local\"); / redirects to /login (307); tracker script served with open CORS (9547 bytes); API requires authentication (401 signed out). Four of four passed."
+      }
+    ],
+    "not_tested": [
+      "Forwarded-host resolution: whether payment-provider webhook URLs derive the public domain correctly was not looked at, because no payment provider was connected.",
+      "Behaviour under sustained event volume; a single day-one deployment cannot show it."
+    ],
+    "config_digest": "a626ded5626f6322c90319967aef5117fa7e968280f0eb1b173c5c7ff35dd794"
+  },
+  "notes_paths": [
+    "notes/talivia/2026-09-14-railway-route-research.md",
+    "notes/talivia/2026-09-14-railway-iac-research.md",
+    "notes/talivia/2026-10-10-railway-first-apply.md",
+    "notes/talivia/2026-10-10-railway-marketplace-analysis.md"
+  ]
 }
