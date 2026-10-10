@@ -76,8 +76,65 @@
     ]
   },
   "states": {
-    "work_state": "awaiting_human_verification",
+    "work_state": "verified",
     "listing_state": "unlisted"
+  },
+  "verification": {
+    "verifier": "yosuke1024",
+    "verified_at": "2026-10-10",
+    "target": {
+      "upstream_commit": "a9bdc511b30067ddde72d48db30c69ee71289e80",
+      "image_digest": "sha256:cc02150b30ec4fbe9bafdcd50e30608ff7cba550241f0723697465a0d6bf95ab"
+    },
+    "checks": [
+      {
+        "check_id": "deploy-completes",
+        "result": "passed",
+        "observed": "Applied on 2026-10-10 from the owner's own Railway account with `railway config apply --file deployments/talivia/.railway/railway.ts`, run by the owner's Claude Code session at the owner's instruction and reviewed by the owner. Railway detected upstream's Dockerfile and the build log shows its deps, builder and runner stages. First boot: check-env passed, check-db reported the database connection and version check successful, three migrations applied (0001_oss_baseline, 20260911173000_backfill_visitor_first_session, 20260924181000_oss_installation_identity), then `node server.js` reported ready on 0.0.0.0:3000. The deployment reached SUCCESS, so the /api/heartbeat health check passed. It built the head of main at that moment, a9bdc51, not the commit the guide was first written against; the file does not pin a commit."
+      },
+      {
+        "check_id": "initial-setup-completes",
+        "result": "passed",
+        "observed": "The owner signed in with upstream's documented bootstrap credentials, changed the password under Settings → Account (/app/settings/account), signed out, and confirmed the old password is refused and the new one accepted. The owner then created a website in the Add website wizard and obtained its tracking snippet; the wizard's Revenue step was skipped."
+      },
+      {
+        "check_id": "primary-flow-works",
+        "result": "not_tested",
+        "observed": "The tracking snippet was obtained but not installed on any page, and no event was sent. The dashboard for the created website showed no visitors."
+      },
+      {
+        "check_id": "access-and-auth-understood",
+        "result": "passed",
+        "observed": "Signed out, / redirected to /login with 307 and an authenticated API route returned 401. The tracker script is served with Access-Control-Allow-Origin: *, which cross-origin tracking requires. The managed PostgreSQL has no public domain and no TCP proxy; the configuration declares neither, and DATABASE_URL resolves to the private-network host. These probes were run from the owner's session against the owner's deployment and the owner reviewed them."
+      },
+      {
+        "check_id": "persistence-survives-restart",
+        "result": "not_tested",
+        "observed": "No restart or redeploy was performed after the password change and website creation, so nothing was observed to survive one."
+      },
+      {
+        "check_id": "backup-and-restore",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "upgrade-path",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "cost-observed",
+        "result": "not_tested"
+      },
+      {
+        "check_id": "automated-smoke-check",
+        "result": "passed",
+        "observed": "deployments/talivia/smoke.mjs against the owner's deployment on 2026-10-10: health endpoint responds (version \"local\"); / redirects to /login (307); tracker script served with open CORS (9547 bytes); API requires authentication (401 signed out). Four of four passed."
+      }
+    ],
+    "not_tested": [
+      "Forwarded-host resolution: whether payment-provider webhook URLs derive the public domain correctly was not looked at, because no payment provider was connected.",
+      "Behaviour under sustained event volume; a single day-one deployment cannot show it."
+    ],
+    "config_digest": "a626ded5626f6322c90319967aef5117fa7e968280f0eb1b173c5c7ff35dd794"
   },
   "notes_paths": [
     "notes/talivia/2026-09-14-railway-route-research.md",
